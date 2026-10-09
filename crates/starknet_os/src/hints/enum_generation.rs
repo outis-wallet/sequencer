@@ -190,11 +190,19 @@ macro_rules! define_hint_extension_enum {
 
 #[macro_export]
 macro_rules! log_time {
+    // wasm32-unknown-unknown has no clock: Instant::now() panics there, so skip the timing.
     ($command:expr, $hint:expr) => {{
-        let start = std::time::Instant::now();
+        #[cfg(target_arch = "wasm32")]
         let result = $command;
-        let elapsed = start.elapsed().as_secs_f64() * 1000.0;
-        log::debug!("Took {elapsed:>7.3} ms to execute hint {:?}.", $hint);
+        #[cfg(not(target_arch = "wasm32"))]
+        let start = std::time::Instant::now();
+        #[cfg(not(target_arch = "wasm32"))]
+        let result = $command;
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let elapsed = start.elapsed().as_secs_f64() * 1000.0;
+            log::debug!("Took {elapsed:>7.3} ms to execute hint {:?}.", $hint);
+        }
         result
     }};
 }

@@ -198,7 +198,7 @@ pub(crate) fn load_classes_and_create_bytecode_segment_structures<S: StateReader
         )?;
         let bytecode_ptr = ctx.vm.get_relocatable(bytecode_ptr_address)?;
         let builtin_costs = ctx.get_ptr(Ids::BuiltinCosts)?;
-        let encoded_ret_opcode = 0x208b7fff7fff7ffe;
+        let encoded_ret_opcode = Felt::from(0x208b7fff7fff7ffe_u64);
         let data = [encoded_ret_opcode.into(), builtin_costs.into()];
         ctx.vm.load_data((bytecode_ptr + compiled_class.bytecode.len())?, &data)?;
 
