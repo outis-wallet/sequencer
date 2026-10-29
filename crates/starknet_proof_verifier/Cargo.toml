@@ -11,12 +11,15 @@ workspace = true
 
 [dependencies]
 apollo_sizeof.workspace = true
-privacy-circuit-verify-v1.workspace = true
 privacy-circuit-verify-v2.workspace = true
 serde = { workspace = true, features = ["derive"] }
 starknet-types-core.workspace = true
 starknet_api.workspace = true
 thiserror.workspace = true
+
+# The V1 verifier (proving-utils) uses sonic-rs, which has no wasm32 build.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+privacy-circuit-verify-v1.workspace = true
 
 [dev-dependencies]
 rstest.workspace = true

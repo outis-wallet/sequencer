@@ -145,6 +145,7 @@ pub fn verify_proof(proof_facts: ProofFacts, proof: Proof) -> Result<(), VerifyP
         ProofVersion::V0 => {
             return Err(VerifyProofError::InvalidProofVersion { actual: proof_version_felt });
         }
+        #[cfg(not(target_arch = "wasm32"))]
         ProofVersion::V1 => {
             let proof_output = privacy_circuit_verify_v1::PrivacyProofOutput {
                 proof: proof_bytes,
@@ -152,6 +153,13 @@ pub fn verify_proof(proof_facts: ProofFacts, proof: Proof) -> Result<(), VerifyP
             };
             privacy_circuit_verify_v1::verify_recursive_circuit(&proof_output)
                 .map_err(|e| VerifyProofError::Verification(e.to_string()))?;
+        }
+        // The V1 verifier doesn't build for wasm32; what is proven there is V2.
+        #[cfg(target_arch = "wasm32")]
+        ProofVersion::V1 => {
+            return Err(VerifyProofError::Verification(
+                "PROOF1 proofs are not verified on wasm32".to_string(),
+            ));
         }
         ProofVersion::V2 => {
             let proof_output = privacy_circuit_verify_v2::PrivacyProofOutput {
